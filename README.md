@@ -1,6 +1,6 @@
 # Moodle – grunnoppsett
 
-Moodle er en læringsplattform: **Lærere** lager kurs med fagstoff, oppgaver og quizer; **deltakere** kan lære og levere arbeid. Dette repoet setter opp Moodle LMS 5.2.3 uten ekstra kurs eller brukere. Moodle-kjernen hentes ved bygging, mens `plugins/local/` er avsatt til egne tillegg som utvider Moodle.
+Moodle er en læringsplattform: **Lærere** lager kurs med fagstoff, oppgaver og quizer; **deltakere** kan lære og levere arbeid. Dette repoet setter opp Moodle LMS 5.2.3 uten forhåndsopprettede kurs, men med en innloggingsklar `demo`-bruker. Moodle-kjernen hentes ved bygging, mens `plugins/local/` er avsatt til egne tillegg som utvider Moodle.
 
 ## Kom i gang med Docker
 
@@ -10,7 +10,7 @@ Du trenger Docker med Compose og `curl`. Kjør fra repoets rotmappe:
 ./bin/setup
 ```
 
-Åpne <http://localhost:8080> og logg inn som **admin** med `ADMIN_PASSWORD` fra den Git-ignorerte filen `.env`. Databasepassordet opprettes i samme fil. Tjenesten er bare tilgjengelig lokalt på `127.0.0.1`; database og opplastede filer lagres i Docker-volumer.
+Åpne <http://localhost:8080> og logg inn som **demo** med **Demo123!**. På en ny installasjon er dette en vanlig bruker uten kurs eller lærerrolle. For administrasjon: logg inn som **admin** med `ADMIN_PASSWORD` fra den Git-ignorerte filen `.env`. Databasepassordet opprettes i samme fil. Tjenesten er bare tilgjengelig lokalt på `127.0.0.1`; database og opplastede filer lagres i Docker-volumer.
 
 ```sh
 docker compose stop         # Stopp uten å slette data
@@ -28,7 +28,7 @@ Ved flytting bak en reverse proxy på VPS må `MOODLE_WWWROOT` i `.env` settes t
 
 ## Vanlig installasjon uten Docker
 
-Denne veien installerer Moodle direkte på en server, uten Docker-oppsettet i repoet.
+Denne veien installerer Moodle direkte på en server, uten Docker-oppsettet eller `demo`-brukeren i repoet.
 
 1. Last ned [Moodle 5.2.3](https://download.moodle.org/download.php/stable502/moodle-5.2.3.tgz) og installer en webserver, PHP 8.3 eller 8.4 med [nødvendige utvidelser](https://docs.moodle.org/502/en/Installation_Quickstart), og PostgreSQL 16.
 2. Opprett en tom database med egen databasebruker og en skrivbar `moodledata`-mappe **utenfor** webområdet. Pakk ut Moodle og la webserveren peke på Moodles `public/`-mappe. [Sett opp ruting](https://docs.moodle.org/502/en/Configuring_the_Router) til `r.php`.
