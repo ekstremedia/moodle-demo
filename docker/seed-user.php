@@ -15,6 +15,7 @@ if (!$user) {
         'firstname' => 'Demo',
         'lastname' => 'User',
         'email' => 'demo@example.invalid',
+        'lang' => 'nb',
     ];
     $user->id = user_create_user($user);
 }

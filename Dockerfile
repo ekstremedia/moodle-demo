@@ -4,9 +4,11 @@ ARG MOODLE_VERSION=5.2.3
 ARG MOODLE_SHA256=067633d65a1dc196354c3fddbcedee40a329673279416350a8d4f74898fda8a1
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl libfreetype6-dev libicu-dev libjpeg62-turbo-dev libpng-dev \
-    libpq-dev libxml2-dev libzip-dev unzip \
+    libpq-dev libxml2-dev libzip-dev locales unzip \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j"$(nproc)" exif gd intl opcache pdo_pgsql pgsql soap zip \
+    && sed -i 's/^# nb_NO.UTF-8 UTF-8/nb_NO.UTF-8 UTF-8/' /etc/locale.gen \
+    && locale-gen nb_NO.UTF-8 \
     && rm -rf /var/lib/apt/lists/*
 COPY --from=composer /usr/bin/composer /usr/local/bin/composer
 RUN curl -fsSL "https://github.com/moodle/moodle/archive/refs/tags/v${MOODLE_VERSION}.tar.gz" -o /tmp/moodle.tar.gz \
@@ -24,5 +26,6 @@ COPY docker/apache.conf /etc/apache2/sites-available/000-default.conf
 COPY docker/php.ini /usr/local/etc/php/conf.d/moodle.ini
 COPY docker/moodle-cron /usr/local/bin/moodle-cron
 COPY docker/seed-user.php /opt/moodle/seed-user.php
+COPY docker/configure-language.php /opt/moodle/configure-language.php
 RUN chmod +x /usr/local/bin/moodle-cron && a2enmod rewrite headers
 WORKDIR /var/www/html
