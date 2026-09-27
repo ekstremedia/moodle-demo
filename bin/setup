@@ -12,10 +12,15 @@ if [ ! -f .env ]; then
     cat > .env <<EOF
 DB_PASSWORD=$db_password
 ADMIN_PASSWORD=$admin_password
+MOODLE_PORT=8080
 MOODLE_WWWROOT=http://localhost:8080
 EOF
     echo 'Created .env with local passwords.'
 fi
+port="$(sed -n 's/^MOODLE_PORT=//p' .env)"
+port="${port:-8080}"
+wwwroot="$(sed -n 's/^MOODLE_WWWROOT=//p' .env)"
+wwwroot="${wwwroot:-http://localhost:$port}"
 docker compose up -d --build db web
 if ! docker compose exec -T db sh -c 'psql -U moodle -d moodle -Atqc "SELECT to_regclass('\''public.mdl_config'\'')"' | grep -qx mdl_config; then
     echo 'Installing Moodle database...'
@@ -27,16 +32,16 @@ docker compose exec -T -u www-data web php /opt/moodle/seed-user.php
 docker compose up -d --build cron
 ready=0
 for attempt in $(seq 1 30); do
-    if curl -fsS -o /dev/null http://localhost:8080/login/index.php; then
+    if curl -fsS -o /dev/null "http://localhost:$port/login/index.php"; then
         ready=1
         break
     fi
     sleep 1
 done
 if [ "$ready" -ne 1 ]; then
-    echo 'Moodle did not become ready at http://localhost:8080' >&2
+    echo "Moodle did not become ready at http://localhost:$port" >&2
     exit 1
 fi
-echo 'Ready: http://localhost:8080'
+echo "Ready: $wwwroot"
 echo 'Demo login: demo / Demo123!'
 echo 'Sign in as admin with ADMIN_PASSWORD from .env'

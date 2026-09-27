@@ -24,7 +24,7 @@ Du kan kjøre `./bin/setup` flere ganger uten å miste eksisterende data. **Cron
 
 Har du allerede data fra et tidligere oppsett, beholdes de når du kjører `./bin/setup` igjen. Bruk reset-kommandoen over hvis du vil starte helt på nytt; den sletter alle eksisterende data.
 
-Ved flytting bak en reverse proxy på VPS må `MOODLE_WWWROOT` i `.env` settes til adressen brukerne faktisk besøker. Webserver, domene og TLS på VPS må settes opp separat.
+Ved flytting bak en reverse proxy på VPS må `MOODLE_WWWROOT` i `.env` settes til adressen brukerne faktisk besøker, og `MOODLE_PORT` til en ledig lokal port. Med `https://` i `MOODLE_WWWROOT` stoler Moodle på at proxyen terminerer TLS. Webserver, domene og TLS på VPS må settes opp separat.
 
 ## Vanlig installasjon uten Docker
 
