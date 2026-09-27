@@ -23,6 +23,5 @@ COPY docker/config.php /var/www/html/config.php
 COPY docker/apache.conf /etc/apache2/sites-available/000-default.conf
 COPY docker/php.ini /usr/local/etc/php/conf.d/moodle.ini
 COPY docker/moodle-cron /usr/local/bin/moodle-cron
-COPY docker/seed.php /opt/moodle-demo/seed.php
 RUN chmod +x /usr/local/bin/moodle-cron && a2enmod rewrite headers
 WORKDIR /var/www/html

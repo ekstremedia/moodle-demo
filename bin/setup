@@ -19,11 +19,10 @@ fi
 docker compose up -d --build db web
 if ! docker compose exec -T db sh -c 'psql -U moodle -d moodle -Atqc "SELECT to_regclass('\''public.mdl_config'\'')"' | grep -qx mdl_config; then
     echo 'Installing Moodle database...'
-    docker compose exec -T -u www-data web sh -c 'php admin/cli/install_database.php --lang=en --adminuser=admin --adminpass="$ADMIN_PASSWORD" --adminemail=admin@example.invalid --fullname="Moodle interview demo" --shortname="Moodle demo" --agree-license'
+    docker compose exec -T -u www-data web sh -c 'php admin/cli/install_database.php --lang=en --adminuser=admin --adminpass="$ADMIN_PASSWORD" --adminemail=admin@example.invalid --fullname="Moodle LMS" --shortname="Moodle" --agree-license'
 else
     docker compose exec -T -u www-data web php admin/cli/upgrade.php --non-interactive
 fi
-docker compose exec -T -u www-data web php /opt/moodle-demo/seed.php
 docker compose up -d --build cron
 ready=0
 for attempt in $(seq 1 30); do
@@ -37,5 +36,5 @@ if [ "$ready" -ne 1 ]; then
     echo 'Moodle did not become ready at http://localhost:8080' >&2
     exit 1
 fi
-echo 'Ready: http://localhost:8080 (demo / Demo123!)'
-echo 'Administrator password: .env (ADMIN_PASSWORD)'
+echo 'Ready: http://localhost:8080'
+echo 'Sign in as admin with ADMIN_PASSWORD from .env'
