@@ -1,0 +1,6 @@
+#!/bin/sh
+set -eu
+while :; do
+    su -s /bin/sh www-data -c 'php /var/www/html/admin/cli/cron.php --keep-alive=0' || true
+    sleep "$((60 - $(date +%s) % 60))"
+done
