@@ -31,12 +31,12 @@ Ved flytting bak en reverse proxy på VPS må `MOODLE_WWWROOT` i `.env` settes t
 For at registreringsbrev skal nå brukerne, fyll inn SMTP-verdiene i `.env` og kjør `./bin/setup` igjen. Bruk gjerne de samme verdiene som i Laravel:
 
 ```dotenv
-MAIL_HOST=send.one.com
+MAIL_HOST=smtp.example.com
 MAIL_PORT=465
 MAIL_ENCRYPTION=ssl
-MAIL_USERNAME=post@ekstremedia.no
+MAIL_USERNAME=noreply@example.com
 MAIL_PASSWORD=<SMTP-passord>
-MAIL_FROM_ADDRESS=post@ekstremedia.no
+MAIL_FROM_ADDRESS=noreply@example.com
 ```
 
 `MAIL_HOST=mailpit` er bare for lokal testing. Etter oppsett kan administrator sende et prøvebrev fra **Nettstedsadministrasjon → Server → E-post → Utgående e-post**. Nye kontoer får ingen kurs automatisk; en lærer eller administrator må melde dem på, eller aktivere selvpåmelding i et kurs.
