@@ -56,7 +56,8 @@ final class MoodleSetupTest extends TestCase {
 
     public function testSignupEmailConfirmationAndLogin(): void {
         $username = 'signup_test_' . bin2hex(random_bytes(6));
-        $email = $username . '@example.invalid';
+        // Moodle deliberately skips outgoing mail to .invalid addresses.
+        $email = $username . '@example.test';
         $password = 'SignupTest123!';
         $browser = new MoodleBrowser();
         try {
@@ -86,18 +87,19 @@ final class MoodleSetupTest extends TestCase {
                 'country' => 'NO',
                 'submitbutton' => '1',
             ];
-            [, , $postStatus] = $browser->post('/login/signup.php', $form);
+            [$response, , $postStatus] = $browser->post('/login/signup.php', $form);
             self::assertSame(200, $postStatus);
+            self::assertStringNotContainsString('name="email2"', $response, 'Signup form was redisplayed after submission');
 
             $mail = false;
             for ($attempt = 0; $attempt < 10; $attempt++) {
-                $mail = file_get_contents('http://localhost:8025/view/latest.txt');
+                $mail = @file_get_contents('http://localhost:8025/view/latest.txt');
                 if ($mail !== false && str_contains($mail, $username)) {
                     break;
                 }
                 usleep(200000);
             }
-            self::assertIsString($mail);
+            self::assertIsString($mail, 'Mailpit did not receive a confirmation email');
             self::assertStringContainsString($username, $mail);
             self::assertSame(1, preg_match('~https?://[^\s<>]+/login/confirm\.php\?data=[^\s<>]+~', $mail, $link));
             $path = parse_url(trim($link[0]), PHP_URL_PATH) . '?' . parse_url(trim($link[0]), PHP_URL_QUERY);
