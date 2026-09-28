@@ -32,6 +32,10 @@ if ($from !== '') {
     }
     set_config('noreplyaddress', $from);
     set_config('supportemail', $from);
+} else {
+    // Moodle's default noreply@<host> becomes noreply@localhost locally, which
+    // PHPMailer rejects, so signup mail would fail before reaching Mailpit.
+    set_config('noreplyaddress', 'noreply@example.com');
 }
 
 echo "Email self-registration and outgoing SMTP are configured.\n";
