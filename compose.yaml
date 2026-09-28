@@ -24,6 +24,15 @@ services:
       db:
         condition: service_healthy
     restart: unless-stopped
+  mailpit:
+    image: axllent/mailpit:v1.31.1
+    environment:
+      MP_DATABASE: /data/mailpit.db
+    ports:
+      - "127.0.0.1:${MAILPIT_PORT:-8025}:8025"
+    volumes:
+      - mailpit_data:/data
+    restart: unless-stopped
   cron:
     build: .
     env_file: .env
@@ -37,3 +46,4 @@ services:
 volumes:
   postgres_data:
   moodle_data:
+  mailpit_data:

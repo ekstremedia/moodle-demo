@@ -27,5 +27,6 @@ COPY docker/php.ini /usr/local/etc/php/conf.d/moodle.ini
 COPY docker/moodle-cron /usr/local/bin/moodle-cron
 COPY docker/seed-user.php /opt/moodle/seed-user.php
 COPY docker/configure-language.php /opt/moodle/configure-language.php
+COPY docker/configure-registration.php /opt/moodle/configure-registration.php
 RUN chmod +x /usr/local/bin/moodle-cron && a2enmod rewrite headers
 WORKDIR /var/www/html

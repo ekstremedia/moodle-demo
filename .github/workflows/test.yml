@@ -26,6 +26,9 @@ jobs:
           test "$(docker compose exec -T db psql -U moodle -d moodle -Atqc 'SELECT count(*) FROM mdl_course')" = 1
           test "$(docker compose exec -T db psql -U moodle -d moodle -Atqc "SELECT count(*) FROM mdl_user WHERE username='demo' AND lang='nb'")" = 1
           docker compose ps --status running --services | grep -qx cron
+          docker compose ps --status running --services | grep -qx mailpit
+          test "$(docker compose exec -T db psql -U moodle -d moodle -Atqc "SELECT value FROM mdl_config WHERE name='registerauth'")" = email
+          test "$(docker compose exec -T db psql -U moodle -d moodle -Atqc "SELECT value FROM mdl_config WHERE name='smtphosts'")" = mailpit:1025
       - name: Run PHPUnit full-stack tests
         run: phpunit --configuration tests/phpunit.xml
       - name: Verify cron and fixture cleanup
@@ -38,7 +41,7 @@ jobs:
           test "$(docker compose exec -T db psql -U moodle -d moodle -Atqc "SELECT count(*) FROM mdl_user WHERE username='demo'")" = 1
       - name: Show container logs on failure
         if: failure()
-        run: docker compose logs --tail=100 web cron db
+        run: docker compose logs --tail=100 web cron db mailpit
       - name: Remove test volumes
         if: always()
         run: |

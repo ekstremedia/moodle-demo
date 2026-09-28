@@ -14,6 +14,12 @@ DB_PASSWORD=$db_password
 ADMIN_PASSWORD=$admin_password
 MOODLE_PORT=8080
 MOODLE_WWWROOT=http://localhost:8080
+MAIL_HOST=mailpit
+MAIL_PORT=1025
+MAIL_ENCRYPTION=none
+MAIL_USERNAME=
+MAIL_PASSWORD=
+MAIL_FROM_ADDRESS=
 EOF
     echo 'Created .env with local passwords.'
 fi
@@ -21,7 +27,7 @@ port="$(sed -n 's/^MOODLE_PORT=//p' .env)"
 port="${port:-8080}"
 wwwroot="$(sed -n 's/^MOODLE_WWWROOT=//p' .env)"
 wwwroot="${wwwroot:-http://localhost:$port}"
-docker compose up -d --build db web
+docker compose up -d --build db mailpit web
 if ! docker compose exec -T db sh -c 'psql -U moodle -d moodle -Atqc "SELECT to_regclass('\''public.mdl_config'\'')"' | grep -qx mdl_config; then
     echo 'Installing Moodle database...'
     docker compose exec -T -u www-data web sh -c 'php admin/cli/install_database.php --lang=en --adminuser=admin --adminpass="$ADMIN_PASSWORD" --adminemail=admin@example.invalid --fullname="Moodle LMS" --shortname="Moodle" --agree-license'
@@ -30,6 +36,7 @@ else
 fi
 docker compose exec -T -u www-data web php /opt/moodle/seed-user.php
 docker compose exec -T -u www-data web php /opt/moodle/configure-language.php
+docker compose exec -T -u www-data web php /opt/moodle/configure-registration.php
 docker compose up -d --build cron
 ready=0
 for attempt in $(seq 1 30); do
@@ -46,3 +53,9 @@ fi
 echo "Ready: $wwwroot"
 echo 'Demo login: demo / Demo123!'
 echo 'Sign in as admin with ADMIN_PASSWORD from .env'
+echo "Create an account: $wwwroot/login/signup.php"
+mail_host="$(sed -n 's/^MAIL_HOST=//p' .env)"
+if [ "${mail_host:-mailpit}" = mailpit ]; then
+    mailpit_port="$(sed -n 's/^MAILPIT_PORT=//p' .env)"
+    echo "Local confirmation mail: http://localhost:${mailpit_port:-8025}"
+fi
