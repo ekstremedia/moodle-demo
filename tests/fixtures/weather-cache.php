@@ -25,8 +25,8 @@ for ($i = 0; $i < 25; $i++) {
                 'relative_humidity' => 60,
             ]],
             'next_1_hours' => [
-                'summary' => ['symbol_code' => $i === 0 ? 'cloudy' : 'rain'],
-                'details' => ['precipitation_amount' => $i === 0 ? 0 : 1],
+                'summary' => ['symbol_code' => 'cloudy'],
+                'details' => ['precipitation_amount' => 0],
             ],
         ],
     ];

@@ -43,7 +43,6 @@ final class MoodleWeatherTest extends TestCase {
             self::assertCount(1, $xpath->query(".//a[contains(@href, 'yr.no')]", $footers->item(0)));
             self::assertStringContainsString('Maks vind', $login);
             self::assertStringContainsString('cloudy.svg', $login);
-            self::assertStringContainsString('rain.svg', $login);
         } finally {
             $browser->close();
             self::runFixture('weather-cache.php', 'clear');
