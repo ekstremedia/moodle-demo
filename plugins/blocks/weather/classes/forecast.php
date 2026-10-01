@@ -12,7 +12,7 @@ defined('MOODLE_INTERNAL') || die();
 final class forecast {
     private const URL = 'https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=58.1467&lon=7.9956';
 
-    /** @return array|null Weather now, the next two dayparts, and summaries for their dates. */
+    /** @return array|null Weather now and the remaining dayparts for today. */
     public static function current(): ?array {
         global $CFG;
 
@@ -77,7 +77,7 @@ final class forecast {
         return $body !== null ? self::parse($body) : null;
     }
 
-    /** @return array|null Weather now, the next two dayparts, and summaries for their dates. */
+    /** @return array|null Weather now and the remaining dayparts for today. */
     public static function parse(string $json, ?\DateTimeImmutable $now = null): ?array {
         $data = json_decode($json, true);
         $entries = $data['properties']['timeseries'] ?? null;
@@ -115,22 +115,19 @@ final class forecast {
         $humidity = self::number($instant['relative_humidity'] ?? null);
         $next = $current['data']['next_1_hours'] ?? [];
         $start = $localnow->setTime(intdiv((int) $localnow->format('G'), 6) * 6, 0);
-        $available = [];
-        for ($i = 0; $i < 8; $i++) {
+        $today = $localnow->format('Y-m-d');
+        $periods = [];
+        while ($start->format('Y-m-d') === $today) {
             $end = $start->modify('+6 hours');
             $period = self::period($entries, $start, $end, $localnow);
             if ($period !== null) {
-                $available[] = $period;
+                $periods[] = $period;
             }
             $start = $end;
         }
-        $periods = array_slice($available, 0, 2);
         $days = [];
-        foreach ($available as $period) {
+        foreach ($periods as $period) {
             $date = $period['date'];
-            if (!in_array($date, array_column($periods, 'date'), true)) {
-                continue;
-            }
             if (!isset($days[$date])) {
                 $days[$date] = [
                     'min' => $period['min'],

@@ -7,6 +7,20 @@ define('CLI_SCRIPT', true);
 require('/var/www/html/config.php');
 
 $entries = [];
+for ($hour = 1; $hour <= 12; $hour++) {
+    $time = (new DateTimeImmutable('2026-10-01T00:00:00+02:00'))
+        ->modify("+{$hour} hours")->setTimezone(new DateTimeZone('UTC'));
+    $entries[] = [
+        'time' => $time->format('Y-m-d\TH:i:s\Z'),
+        'data' => [
+            'instant' => ['details' => ['air_temperature' => 10, 'wind_speed' => 3]],
+            'next_1_hours' => [
+                'summary' => ['symbol_code' => $hour < 6 ? 'clearsky_night' : 'fair_day'],
+                'details' => ['precipitation_amount' => 0],
+            ],
+        ],
+    ];
+}
 for ($hour = 13; $hour <= 23; $hour++) {
     $afternoon = $hour < 18;
     $temperatures = [13 => 16, 14 => 17, 15 => 18, 16 => 15, 17 => 14,
@@ -63,6 +77,8 @@ $sixhour = json_encode(['properties' => ['timeseries' => [[
 
 echo json_encode([
     'valid' => forecast::parse($json, $now),
+    'night' => forecast::parse($json, new DateTimeImmutable('2026-10-01T01:00:00+02:00')),
+    'morning' => forecast::parse($json, new DateTimeImmutable('2026-10-01T08:00:00+02:00')),
     'evening' => forecast::parse($json, new DateTimeImmutable('2026-10-01T20:00:00+02:00')),
     'sixhour' => forecast::parse($sixhour, new DateTimeImmutable('2026-10-03T12:00:00+02:00')),
     'invalid' => forecast::parse('{"properties":{"timeseries":[]}}'),

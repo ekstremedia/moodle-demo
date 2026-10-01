@@ -32,10 +32,11 @@ final class MoodleWeatherTest extends TestCase {
             self::assertCount(1, $outlooks);
             $outlook = $outlooks->item(0);
             $dayparts = $xpath->query(".//*[contains(concat(' ', normalize-space(@class), ' '), ' block-weather-daypart ')]", $outlook);
-            self::assertGreaterThanOrEqual(2, $dayparts->length);
+            self::assertGreaterThanOrEqual(1, $dayparts->length);
+            self::assertLessThanOrEqual(4, $dayparts->length);
             self::assertCount($dayparts->length, $xpath->query(".//img[@width='28' and @height='28']", $outlook));
             $days = $xpath->query(".//*[contains(concat(' ', normalize-space(@class), ' '), ' block-weather-day ')]", $outlook);
-            self::assertGreaterThanOrEqual(1, $days->length);
+            self::assertCount(1, $days);
             self::assertCount(3 * $days->length, $xpath->query(".//*[contains(concat(' ', normalize-space(@class), ' '), ' block-weather-metric ')]", $outlook));
             $footers = $xpath->query("./*[contains(concat(' ', normalize-space(@class), ' '), ' block-weather-footer ')]", $layout);
             self::assertCount(1, $footers);
@@ -49,7 +50,7 @@ final class MoodleWeatherTest extends TestCase {
         }
     }
 
-    public function testForecastParserBuildsCurrentConditionsAndNextDayparts(): void {
+    public function testForecastParserBuildsCurrentConditionsAndRemainingDayparts(): void {
         $stdout = self::runFixture('weather.php');
         $result = json_decode($stdout, true, 512, JSON_THROW_ON_ERROR);
         self::assertNull($result['invalid']);
@@ -74,12 +75,12 @@ final class MoodleWeatherTest extends TestCase {
         self::assertEquals(18, $result['valid']['days']['2026-10-01']['max']);
         self::assertEqualsWithDelta(10.5, $result['valid']['days']['2026-10-01']['precipitation'], 0.01);
         self::assertEquals(8, $result['valid']['days']['2026-10-01']['wind']);
+        self::assertSame([0, 1, 2, 3], array_column($result['night']['periods'], 'part'));
+        self::assertSame([1, 2, 3], array_column($result['morning']['periods'], 'part'));
         self::assertSame(3, $result['evening']['periods'][0]['part']);
-        self::assertCount(2, $result['evening']['periods']);
-        self::assertSame('2026-10-02', $result['evening']['periods'][1]['date']);
-        self::assertSame(0, $result['evening']['periods'][1]['part']);
+        self::assertCount(1, $result['evening']['periods']);
         self::assertEqualsWithDelta(0.8, $result['evening']['days']['2026-10-01']['precipitation'], 0.01);
-        self::assertEquals(0, $result['evening']['days']['2026-10-02']['precipitation']);
+        self::assertArrayNotHasKey('2026-10-02', $result['evening']['days']);
         self::assertEquals(12, $result['sixhour']['periods'][0]['min']);
         self::assertEquals(18, $result['sixhour']['periods'][0]['max']);
         self::assertEqualsWithDelta(9.3, $result['sixhour']['periods'][0]['precipitation'], 0.01);
