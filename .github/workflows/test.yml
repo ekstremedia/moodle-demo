@@ -19,6 +19,8 @@ jobs:
           extensions: curl, dom, mbstring, xml
           coverage: none
           tools: phpunit:11.5
+      - name: Lint weather plugin
+        run: find plugins/blocks/weather docker/configure-weather.php tests/MoodleWeatherTest.php tests/fixtures/weather.php -name '*.php' -print0 | xargs -0 -n1 php -l
       - name: Install Moodle
         run: ./bin/setup
       - name: Check fresh database and services
@@ -29,6 +31,7 @@ jobs:
           docker compose ps --status running --services | grep -qx mailpit
           test "$(docker compose exec -T db psql -U moodle -d moodle -Atqc "SELECT value FROM mdl_config WHERE name='registerauth'")" = email
           test "$(docker compose exec -T db psql -U moodle -d moodle -Atqc "SELECT value FROM mdl_config WHERE name='smtphosts'")" = mailpit:1025
+          test "$(docker compose exec -T db psql -U moodle -d moodle -Atqc "SELECT count(*) FROM mdl_block_instances WHERE blockname='weather' AND pagetypepattern='my-index'")" = 1
       - name: Run PHPUnit full-stack tests
         run: phpunit --configuration tests/phpunit.xml
       - name: Verify cron and fixture cleanup
@@ -39,6 +42,7 @@ jobs:
         run: |
           ./bin/setup
           test "$(docker compose exec -T db psql -U moodle -d moodle -Atqc "SELECT count(*) FROM mdl_user WHERE username='demo'")" = 1
+          test "$(docker compose exec -T db psql -U moodle -d moodle -Atqc "SELECT count(*) FROM mdl_block_instances WHERE blockname='weather' AND pagetypepattern='my-index'")" = 1
       - name: Show container logs on failure
         if: failure()
         run: docker compose logs --tail=100 web cron db mailpit

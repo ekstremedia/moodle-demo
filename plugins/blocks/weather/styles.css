@@ -1,0 +1,19 @@
+.block_weather .block-weather-temperature {
+    font-size: 1.5rem;
+    font-weight: 600;
+    line-height: 1.2;
+    margin-bottom: .25rem;
+}
+
+.block_weather .block-weather-detail {
+    color: var(--bs-secondary-color, #555);
+    font-size: .875rem;
+    margin-bottom: 0;
+}
+
+.block_weather .block-weather-source {
+    color: var(--bs-secondary-color, #555);
+    display: block;
+    font-size: .75rem;
+    margin-top: .35rem;
+}

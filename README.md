@@ -1,6 +1,6 @@
 # Moodle – grunnoppsett
 
-Moodle er en læringsplattform: **Lærere** lager kurs med fagstoff, oppgaver og quizer; **deltakere** kan lære og levere arbeid. Dette repoet setter opp Moodle LMS 5.2.3 uten forhåndsopprettede kurs, men med en innloggingsklar `demo`-bruker. Moodle-kjernen hentes ved bygging, mens `plugins/local/` er avsatt til egne tillegg som utvider Moodle.
+Moodle er en læringsplattform: **Lærere** lager kurs med fagstoff, oppgaver og quizer; **deltakere** kan lære og levere arbeid. Dette repoet setter opp Moodle LMS 5.2.3 uten forhåndsopprettede kurs, men med en innloggingsklar `demo`-bruker. Moodle-kjernen hentes ved bygging, mens `plugins/` inneholder egne tillegg. En liten værblokk på dashbordet viser været i Kristiansand fra MET Norways API.
 
 ## Kom i gang med Docker
 
@@ -16,13 +16,15 @@ Du trenger Docker med Compose og `curl`. Kjør fra repoets rotmappe:
 docker compose stop         # Stopp uten å slette data
 docker compose up -d        # Start igjen
 docker compose logs -f cron # Se bakgrunnsjobber
-./bin/setup                # Bygg på nytt etter endringer i plugins/local/
+./bin/setup                # Bygg på nytt etter endringer i plugins/
 docker compose down -v     # Slett database og filer; kjør deretter ./bin/setup
 ```
 
 Du kan kjøre `./bin/setup` flere ganger uten å miste eksisterende data. **Cron** kjører planlagte Moodle-oppgaver, som varsler og opprydding, hvert minutt.
 
-Etter lokalt oppsett kan du kjøre `phpunit --configuration tests/phpunit.xml` med PHPUnit 11. Testene dekker innlogging, registrering med e-postbekreftelse, norsk språk, kursvisning og redigering. Testbrukeren og testkurset slettes etterpå. GitHub Actions tester også database, cron og gjentatt oppsett ved push og pull request.
+Værblokken mellomlagrer én felles prognose til API-et ber om ny henting. `YR_USER_AGENT` i `.env` identifiserer installasjonen overfor MET Norway; sett den til ditt eget nettsted eller en kontaktadresse på VPS. Blokken lenker til [hele varselet på Yr](https://www.yr.no/nb/v%C3%A6rvarsel/daglig-tabell/1-2376/Norge/Agder/Kristiansand/Kristiansand). Ved installasjon uten Docker kopierer du `plugins/blocks/weather` til Moodles `public/blocks/weather`, kjører oppgradering og legger blokken på dashbordet som administrator.
+
+Etter lokalt oppsett kan du kjøre `phpunit --configuration tests/phpunit.xml` med PHPUnit 11. Testene dekker innlogging, registrering, norsk språk, kurs og værblokken. Testbrukeren og testkurset slettes etterpå. GitHub Actions tester også database, cron og gjentatt oppsett ved push og pull request.
 
 Har du allerede data fra et tidligere oppsett, beholdes de når du kjører `./bin/setup` igjen. Bruk reset-kommandoen over hvis du vil starte helt på nytt; den sletter alle eksisterende data.
 
