@@ -30,5 +30,6 @@ COPY docker/seed-user.php /opt/moodle/seed-user.php
 COPY docker/configure-language.php /opt/moodle/configure-language.php
 COPY docker/configure-registration.php /opt/moodle/configure-registration.php
 COPY docker/configure-weather.php /opt/moodle/configure-weather.php
+COPY docker/configure-learningstep.php /opt/moodle/configure-learningstep.php
 RUN chmod +x /usr/local/bin/moodle-cron && a2enmod rewrite headers
 WORKDIR /var/www/html

@@ -1,0 +1,42 @@
+.block_learningstep .learningstep {
+    max-width: 48rem;
+    overflow-wrap: anywhere;
+}
+.block_learningstep .learningstep-progress {
+    font-weight: 600;
+}
+.block_learningstep legend {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: .75rem;
+}
+.block_learningstep .learningstep-option {
+    display: flex;
+    align-items: baseline;
+    gap: .75rem;
+    padding: .65rem .75rem;
+    margin-bottom: .5rem;
+    border: 1px solid #767676;
+    border-radius: .4rem;
+    cursor: pointer;
+}
+.block_learningstep .learningstep-option input {
+    flex-shrink: 0;
+}
+.block_learningstep .learningstep-option:focus-within {
+    outline: 3px solid currentColor;
+    outline-offset: 2px;
+}
+.block_learningstep .learningstep-feedback {
+    border-inline-start: .25rem solid currentColor;
+    padding-inline-start: 1rem;
+}
+.block_learningstep .learningstep-footer {
+    border-top: 1px solid #767676;
+    margin-top: 1.25rem;
+    padding-top: 1rem;
+}
+.block_learningstep .learningstep-footer small {
+    display: block;
+    margin-top: .75rem;
+}

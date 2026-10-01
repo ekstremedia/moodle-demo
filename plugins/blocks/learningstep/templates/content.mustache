@@ -1,0 +1,54 @@
+{{!
+    @template block_learningstep/content
+    A server-rendered learning step. All content is escaped; native form controls work without JS.
+    Example context (json):
+    {"actionurl":"/blocks/learningstep/action.php","sesskey":"example","step":0,
+     "progress":"0 av 5 steg gjennomgått","questionvisible":true,"question":"Velg en beskrivende lenke",
+     "options":[{"value":0,"label":"Les veilederen"}]}
+}}
+<div class="learningstep">
+    <p>{{#str}}intro, block_learningstep{{/str}}</p>
+    <p class="learningstep-progress">{{progress}}</p>
+    {{#questionvisible}}
+    <form method="post" action="{{actionurl}}">
+        <input type="hidden" name="sesskey" value="{{sesskey}}">
+        <input type="hidden" name="step" value="{{step}}">
+        <input type="hidden" name="action" value="answer">
+        <fieldset>
+            <legend id="learningstep" tabindex="-1">{{question}}</legend>
+            {{#options}}
+            <label class="learningstep-option">
+                <input type="radio" name="answer" value="{{value}}" required>
+                <span>{{label}}</span>
+            </label>
+            {{/options}}
+        </fieldset>
+        <button class="btn btn-primary mt-3" type="submit">{{#str}}submit, block_learningstep{{/str}}</button>
+    </form>
+    {{/questionvisible}}
+    {{#answered}}
+    <div class="learningstep-feedback">
+        <h3 id="learningstep" class="h5" tabindex="-1">{{feedback}}</h3>
+        <p>{{#str}}youranswer, block_learningstep{{/str}} {{selected}}</p>
+        <p>{{explanation}}</p>
+    </div>
+    <form method="post" action="{{actionurl}}">
+        <input type="hidden" name="sesskey" value="{{sesskey}}">
+        <input type="hidden" name="step" value="{{step}}">
+        <button class="btn btn-primary" type="submit" name="action" value="next">{{#str}}next, block_learningstep{{/str}}</button>
+    </form>
+    {{/answered}}
+    {{#done}}
+    <h3 id="learningstep" class="h5" tabindex="-1">{{#str}}complete, block_learningstep{{/str}}</h3>
+    <p>{{#str}}completebody, block_learningstep{{/str}}</p>
+    {{/done}}
+    <footer class="learningstep-footer">
+        <p>{{#str}}privacyhint, block_learningstep{{/str}}</p>
+        <form method="post" action="{{actionurl}}">
+            <input type="hidden" name="sesskey" value="{{sesskey}}">
+            <input type="hidden" name="step" value="{{step}}">
+            <button class="btn btn-outline-secondary btn-sm" type="submit" name="action" value="reset">{{#str}}reset, block_learningstep{{/str}}</button>
+        </form>
+        <small>{{#str}}demonote, block_learningstep{{/str}}</small>
+    </footer>
+</div>
