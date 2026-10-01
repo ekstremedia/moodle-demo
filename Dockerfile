@@ -21,6 +21,7 @@ RUN curl -fsSL "https://github.com/moodle/moodle/archive/refs/tags/v${MOODLE_VER
     && mkdir -p /var/moodledata \
     && chown -R www-data:www-data /var/moodledata
 COPY plugins/local/ /var/www/html/public/local/
+COPY plugins/blocks/ /var/www/html/public/blocks/
 COPY docker/config.php /var/www/html/config.php
 COPY docker/apache.conf /etc/apache2/sites-available/000-default.conf
 COPY docker/php.ini /usr/local/etc/php/conf.d/moodle.ini
@@ -28,5 +29,6 @@ COPY docker/moodle-cron /usr/local/bin/moodle-cron
 COPY docker/seed-user.php /opt/moodle/seed-user.php
 COPY docker/configure-language.php /opt/moodle/configure-language.php
 COPY docker/configure-registration.php /opt/moodle/configure-registration.php
+COPY docker/configure-weather.php /opt/moodle/configure-weather.php
 RUN chmod +x /usr/local/bin/moodle-cron && a2enmod rewrite headers
 WORKDIR /var/www/html

@@ -20,6 +20,7 @@ MAIL_ENCRYPTION=none
 MAIL_USERNAME=
 MAIL_PASSWORD=
 MAIL_FROM_ADDRESS=
+YR_USER_AGENT="MoodleWeather/1.0 (https://ekstremedia.no)"
 EOF
     echo 'Created .env with local passwords.'
 fi
@@ -37,6 +38,7 @@ fi
 docker compose exec -T -u www-data web php /opt/moodle/seed-user.php
 docker compose exec -T -u www-data web php /opt/moodle/configure-language.php
 docker compose exec -T -u www-data web php /opt/moodle/configure-registration.php
+docker compose exec -T -u www-data web php /opt/moodle/configure-weather.php
 docker compose up -d --build cron
 ready=0
 for attempt in $(seq 1 30); do

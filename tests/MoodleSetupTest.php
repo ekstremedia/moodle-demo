@@ -4,6 +4,7 @@ declare(strict_types=1);
 use PHPUnit\Framework\TestCase;
 
 require_once __DIR__ . '/Support/MoodleBrowser.php';
+require_once __DIR__ . '/Support/SetupEnvironment.php';
 
 final class MoodleSetupTest extends TestCase {
     public function testLoginPageUsesNorwegianEvenWithEnglishBrowserPreference(): void {
@@ -20,11 +21,9 @@ final class MoodleSetupTest extends TestCase {
     }
 
     public function testDemoAndAdminCanLogInWithNorwegianPages(): void {
-        $settings = parse_ini_file(__DIR__ . '/../.env');
-        self::assertIsArray($settings);
-        self::assertNotEmpty($settings['ADMIN_PASSWORD'] ?? null);
+        $adminpassword = SetupEnvironment::adminPassword();
 
-        foreach (['demo' => 'Demo123!', 'admin' => $settings['ADMIN_PASSWORD']] as $username => $password) {
+        foreach (['demo' => 'Demo123!', 'admin' => $adminpassword] as $username => $password) {
             $browser = new MoodleBrowser();
             try {
                 [$dashboard, $url, $status] = $browser->login($username, $password);
