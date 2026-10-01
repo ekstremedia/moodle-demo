@@ -1,3 +1,15 @@
+.block_weather .block-weather-layout {
+    align-items: start;
+    display: grid;
+    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+}
+
+.block_weather .block-weather-current,
+.block_weather .block-weather-outlook {
+    min-width: 0;
+}
+
 .block_weather .block-weather-now {
     align-items: center;
     display: flex;
@@ -32,45 +44,54 @@
     margin: .2rem 0;
 }
 
-.block_weather .block-weather-periods {
+.block_weather .block-weather-day + .block-weather-day {
     border-top: 1px solid var(--bs-border-color, #ddd);
-    margin-top: .75rem;
-    padding-top: .25rem;
+    margin-top: .65rem;
+    padding-top: .65rem;
 }
 
-.block_weather .block-weather-period {
-    display: grid;
-    gap: .1rem .35rem;
-    grid-template-columns: minmax(0, 1fr) 28px auto;
-    padding: .45rem 0;
+.block_weather .block-weather-date {
+    display: block;
+    font-size: .9rem;
+    margin-bottom: .25rem;
 }
 
-.block_weather .block-weather-period + .block-weather-period {
-    border-top: 1px solid var(--bs-border-color, #ddd);
+.block_weather .block-weather-symbols {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.25rem;
+}
+
+.block_weather .block-weather-daypart {
+    align-items: center;
+    display: flex;
+    gap: .25rem;
 }
 
 .block_weather .block-weather-period-label {
-    align-self: center;
     font-size: .8rem;
-    font-weight: 500;
 }
 
-.block_weather .block-weather-period .block-weather-icon {
+.block_weather .block-weather-daypart .block-weather-icon {
     height: 28px;
     width: 28px;
 }
 
 .block_weather .block-weather-range {
-    align-self: center;
     font-size: .9rem;
     font-weight: 600;
-    white-space: nowrap;
 }
 
 .block_weather .block-weather-period-details {
     color: var(--bs-secondary-color, #555);
     font-size: .75rem;
-    grid-column: 1 / -1;
+}
+
+.block_weather .block-weather-footer {
+    border-top: 1px solid var(--bs-border-color, #ddd);
+    font-size: .8rem;
+    margin-top: .75rem;
+    padding-top: .5rem;
 }
 
 .block_weather .block-weather-source {

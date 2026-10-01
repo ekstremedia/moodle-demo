@@ -12,7 +12,7 @@ defined('MOODLE_INTERNAL') || die();
 final class forecast {
     private const URL = 'https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=58.1467&lon=7.9956';
 
-    /** @return array|null Weather now and the next two local six-hour periods. */
+    /** @return array|null Weather now, the next two dayparts, and summaries for their dates. */
     public static function current(): ?array {
         global $CFG;
 
@@ -77,7 +77,7 @@ final class forecast {
         return $body !== null ? self::parse($body) : null;
     }
 
-    /** @return array|null Weather now and the next two local six-hour periods. */
+    /** @return array|null Weather now, the next two dayparts, and summaries for their dates. */
     public static function parse(string $json, ?\DateTimeImmutable $now = null): ?array {
         $data = json_decode($json, true);
         $entries = $data['properties']['timeseries'] ?? null;
@@ -115,14 +115,39 @@ final class forecast {
         $humidity = self::number($instant['relative_humidity'] ?? null);
         $next = $current['data']['next_1_hours'] ?? [];
         $start = $localnow->setTime(intdiv((int) $localnow->format('G'), 6) * 6, 0);
-        $periods = [];
-        for ($i = 0; $i < 4 && count($periods) < 2; $i++) {
+        $available = [];
+        for ($i = 0; $i < 8; $i++) {
             $end = $start->modify('+6 hours');
             $period = self::period($entries, $start, $end, $localnow);
             if ($period !== null) {
-                $periods[] = $period;
+                $available[] = $period;
             }
             $start = $end;
+        }
+        $periods = array_slice($available, 0, 2);
+        $days = [];
+        foreach ($available as $period) {
+            $date = $period['date'];
+            if (!in_array($date, array_column($periods, 'date'), true)) {
+                continue;
+            }
+            if (!isset($days[$date])) {
+                $days[$date] = [
+                    'min' => $period['min'],
+                    'max' => $period['max'],
+                    'precipitation' => $period['precipitation'],
+                    'wind' => $period['wind'],
+                ];
+                continue;
+            }
+            $days[$date]['min'] = min($days[$date]['min'], $period['min']);
+            $days[$date]['max'] = max($days[$date]['max'], $period['max']);
+            if ($period['precipitation'] !== null) {
+                $days[$date]['precipitation'] = ($days[$date]['precipitation'] ?? 0) + $period['precipitation'];
+            }
+            if ($period['wind'] !== null) {
+                $days[$date]['wind'] = max($days[$date]['wind'] ?? 0, $period['wind']);
+            }
         }
 
         return [
@@ -138,6 +163,7 @@ final class forecast {
                     ?? null,
             ],
             'periods' => $periods,
+            'days' => $days,
         ];
     }
 
