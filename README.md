@@ -1,6 +1,6 @@
 # Moodle – grunnoppsett
 
-Moodle er en læringsplattform: **Lærere** lager kurs med fagstoff, oppgaver og quizer; **deltakere** kan lære og levere arbeid. Dette repoet setter opp Moodle LMS 5.2.3 uten forhåndsopprettede kurs, men med en innloggingsklar `demo`-bruker. Moodle-kjernen hentes ved bygging, mens `plugins/` inneholder egne tillegg. Værblokken på dashbordet viser vær, vind og de neste delene av dagen i Kristiansand.
+Moodle er en læringsplattform: **Lærere** lager kurs med fagstoff, oppgaver og quizer; **deltakere** kan lære og levere arbeid. Dette repoet setter opp Moodle LMS 5.2.3 uten forhåndsopprettede kurs, men med en innloggingsklar `demo`-bruker. Moodle-kjernen hentes ved bygging, mens `plugins/` inneholder egne tillegg. Værblokken på dashbordet viser været nå, symboler for de neste to dagdelene og samlet prognose for resten av hver viste dag i Kristiansand.
 
 ## Kom i gang med Docker
 

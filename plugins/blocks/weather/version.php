@@ -7,7 +7,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'block_weather';
-$plugin->version = 2026100101;
+$plugin->version = 2026100102;
 $plugin->requires = 2026042003;
 $plugin->maturity = MATURITY_BETA;
 $plugin->release = '1.0.0';

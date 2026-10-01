@@ -87,7 +87,7 @@ class block_weather extends block_base {
                 $groups[$period['date']][] = html_writer::tag('div',
                     html_writer::tag('span', get_string('part' . $period['part'], 'block_weather'),
                         ['class' => 'block-weather-period-label'])
-                    . $this->icon($period['symbol'], $condition),
+                    . $this->icon($period['symbol'], $condition, 28),
                     ['class' => 'block-weather-daypart']);
             }
             foreach ($groups as $date => $symbols) {
@@ -116,7 +116,7 @@ class block_weather extends block_base {
             ['class' => 'block-weather-layout']);
     }
 
-    private function icon(?string $code, string $alt): string {
+    private function icon(?string $code, string $alt, int $size = 56): string {
         if ($code === null || !preg_match('/^[a-z0-9_]+$/D', $code)
                 || !is_file(__DIR__ . '/pix/symbols/' . $code . '.svg')) {
             return '';
@@ -125,6 +125,8 @@ class block_weather extends block_base {
             'src' => (new moodle_url('/blocks/weather/pix/symbols/' . $code . '.svg'))->out(false),
             'alt' => $alt,
             'class' => 'block-weather-icon',
+            'width' => $size,
+            'height' => $size,
             'loading' => 'lazy',
         ]);
     }

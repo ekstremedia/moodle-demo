@@ -21,7 +21,21 @@ final class MoodleWeatherTest extends TestCase {
             self::assertStringContainsString('Skyet', $login);
             self::assertStringContainsString('Føles som 16°', $login);
             self::assertStringContainsString('8 m/s frisk bris fra øst med vindkast på 13 m/s', $login);
-            self::assertGreaterThanOrEqual(2, substr_count($login, 'class="block-weather-period"'));
+            $document = new DOMDocument();
+            @$document->loadHTML($login);
+            $xpath = new DOMXPath($document);
+            self::assertCount(1, $xpath->query("//*[contains(concat(' ', normalize-space(@class), ' '), ' block-weather-layout ')]"));
+            self::assertCount(1, $xpath->query("//*[contains(concat(' ', normalize-space(@class), ' '), ' block-weather-current ')]"));
+            $outlooks = $xpath->query("//*[contains(concat(' ', normalize-space(@class), ' '), ' block-weather-outlook ')]");
+            self::assertCount(1, $outlooks);
+            $outlook = $outlooks->item(0);
+            $dayparts = $xpath->query(".//*[contains(concat(' ', normalize-space(@class), ' '), ' block-weather-daypart ')]", $outlook);
+            self::assertGreaterThanOrEqual(2, $dayparts->length);
+            self::assertCount($dayparts->length, $xpath->query(".//img[@width='28' and @height='28']", $outlook));
+            $days = $xpath->query(".//*[contains(concat(' ', normalize-space(@class), ' '), ' block-weather-day ')]", $outlook);
+            self::assertGreaterThanOrEqual(1, $days->length);
+            self::assertCount($days->length, $xpath->query(".//*[contains(concat(' ', normalize-space(@class), ' '), ' block-weather-range ')]", $outlook));
+            self::assertCount(1, $xpath->query(".//a[contains(@href, 'yr.no')]", $outlook));
             self::assertStringContainsString('Vind opptil 8 m/s', $login);
             self::assertStringContainsString('cloudy.svg', $login);
             self::assertStringContainsString('rain.svg', $login);
@@ -52,14 +66,21 @@ final class MoodleWeatherTest extends TestCase {
         self::assertSame('rain', $result['valid']['periods'][0]['symbol']);
         self::assertSame(3, $result['valid']['periods'][1]['part']);
         self::assertEqualsWithDelta(1.2, $result['valid']['periods'][1]['precipitation'], 0.01);
+        self::assertEquals(9, $result['valid']['days']['2026-10-01']['min']);
+        self::assertEquals(18, $result['valid']['days']['2026-10-01']['max']);
+        self::assertEqualsWithDelta(10.5, $result['valid']['days']['2026-10-01']['precipitation'], 0.01);
+        self::assertEquals(8, $result['valid']['days']['2026-10-01']['wind']);
         self::assertSame(3, $result['evening']['periods'][0]['part']);
         self::assertCount(2, $result['evening']['periods']);
         self::assertSame('2026-10-02', $result['evening']['periods'][1]['date']);
         self::assertSame(0, $result['evening']['periods'][1]['part']);
+        self::assertEqualsWithDelta(0.8, $result['evening']['days']['2026-10-01']['precipitation'], 0.01);
+        self::assertEquals(0, $result['evening']['days']['2026-10-02']['precipitation']);
         self::assertEquals(12, $result['sixhour']['periods'][0]['min']);
         self::assertEquals(18, $result['sixhour']['periods'][0]['max']);
         self::assertEqualsWithDelta(9.3, $result['sixhour']['periods'][0]['precipitation'], 0.01);
         self::assertSame('rain', $result['sixhour']['periods'][0]['symbol']);
+        self::assertEqualsWithDelta(9.3, $result['sixhour']['days']['2026-10-03']['precipitation'], 0.01);
     }
 
     private static function runFixture(string $filename, ?string $action = null): string {
