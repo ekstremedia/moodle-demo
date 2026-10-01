@@ -48,7 +48,7 @@ test('keyboard flow works without JavaScript, including completion and reset', a
             await Promise.all([page.waitForNavigation({waitUntil: 'domcontentloaded'}), page.keyboard.press('Enter')]);
             await expect(block.getByText(`${step + 1} av 5 steg gjennomgått`)).toBeVisible();
         }
-        await expect(block.getByText('Fem små steg – ta dem med inn i neste kurs.')).toBeVisible();
+        await expect(block.getByText('Fem små steg – ta dem med inn i hverdagen.')).toBeVisible();
         await page.keyboard.press('Tab');
         await expect(block.getByRole('button', {name: 'Nullstill mine steg'})).toBeFocused();
         await Promise.all([page.waitForNavigation({waitUntil: 'domcontentloaded'}), page.keyboard.press('Enter')]);

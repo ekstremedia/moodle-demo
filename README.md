@@ -45,9 +45,11 @@ MAIL_FROM_ADDRESS=noreply@example.com
 
 ## Et lite læringssteg
 
-Dashbordet har fem korte øvelser på bokmål om tilgjengelig kursinnhold: lenker, bilder, overskrifter, video og farge. Velg et svar, les forklaringen og gå videre når det passer. Fremdriften huskes mellom innlogginger og kan nullstilles. Dette er øving uten karakterer; oppgavene er eksempler, ikke en fullstendig WCAG-sjekkliste.
+Dashbordet har fem korte øvelser på bokmål for voksne som tilrettelegger i barnehage og skole: kommunikasjon (ASK), forutsigbarhet, felles lek, hørsel og barnets medvirkning. Velg et svar, les forklaringen og gå videre når det passer. Fremdriften huskes mellom innlogginger og kan nullstilles. Dette er egne eksempeloppgaver inspirert av [Statpeds ressurser om tilrettelegging](https://www.statped.no/tiltak-og-tilrettelegging/), ikke faglig kvalitetssikret kursinnhold fra Statped. Tiltak må tilpasses det enkelte barnet.
 
-Kjør `./bin/setup` etter at pluginen er hentet; dette bygger bildet, oppgraderer Moodle og legger blokken på eksisterende og nye dashbord. Uten Docker kopierer du `plugins/blocks/learningstep` til `public/blocks/learningstep`, kjører Moodle-oppgradering og legger blokken på standarddashbordet. Oppgavene følger pluginen og redigeres foreløpig i språkfilene.
+Kjør `./bin/setup` etter at pluginen er hentet; dette bygger bildet, oppgraderer Moodle og legger blokken på eksisterende og nye dashbord. Uten Docker kopierer du `plugins/blocks/learningstep` til `public/blocks/learningstep`, kjører Moodle-oppgradering og legger blokken på standarddashbordet. Oppgavene følger pluginen og redigeres foreløpig i språkfilene. Oppgraderingen til 0.1.1 nullstiller fremdrift fra de tidligere oppgavene om webtilgjengelighet.
+
+Bakgrunn for eksemplene: [ASK](https://www.statped.no/tiltak-og-tilrettelegging/alternativ-og-supplerende-kommunikasjon/), [syn og felles lek](https://www.statped.no/tiltak-og-tilrettelegging/synsnedsettelser/), [støy og hørsel](https://www.statped.no/tiltak-og-tilrettelegging/sansetap/nedsatt-horsel/sann-reduserer-du-stoy-i-klasserommet/) og [planlegging av skolestart](https://www.statped.no/horselshemming/barnehage/med-nedsett-hoyrsel/planlegging-og-samarbeid/).
 
 Blokken bruker vanlige skjemaer, synlige fokusmarkeringer og tekstlige tilbakemeldinger, og fungerer uten JavaScript. CI kjører også tastaturtester i Chromium og automatiske tilgjengelighetssjekker med axe. Disse erstatter ikke manuell testing med skjermleser. Kjør nettlesertestene mot en lokal **testinstallasjon** (de oppretter og sletter testbrukere):
 

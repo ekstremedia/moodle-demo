@@ -27,7 +27,7 @@ final class MoodleLearningStepTest extends TestCase {
         [$html, $url, $status] = $this->browser->post('/blocks/learningstep/action.php', $form);
         self::assertSame(200, $status);
         self::assertStringContainsString('/my/', $url);
-        self::assertStringContainsString('Ja, dette gjør innholdet lettere å bruke.', $html);
+        self::assertStringContainsString('Ja, dette gir bedre muligheter for deltakelse.', $html);
         self::assertStringContainsString('1 av 5 steg gjennomgått', $html);
         self::assertSame(['step' => 0, 'answer' => 2], json_decode($this->fixture('state'), true));
         $this->browser->close();
@@ -35,8 +35,8 @@ final class MoodleLearningStepTest extends TestCase {
         [$html] = $this->browser->login($this->username, 'Learning123!');
         self::assertStringContainsString('Du valgte:', $html);
         [$html] = $this->browser->post('/blocks/learningstep/action.php', $this->form($html) + ['action' => 'next']);
-        self::assertStringContainsString('Et diagram viser', $html);
-        // An old answer form must not answer the diagram question.
+        self::assertStringContainsString('En elev blir urolig', $html);
+        // An old answer form must not answer the transition question.
         $this->browser->post('/blocks/learningstep/action.php', $form);
         self::assertSame(['step' => 1, 'answer' => null], json_decode($this->fixture('state'), true));
         [$html] = $this->browser->post('/blocks/learningstep/action.php', $this->form($html) + ['action' => 'reset']);

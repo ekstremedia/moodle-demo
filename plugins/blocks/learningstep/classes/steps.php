@@ -8,7 +8,7 @@ defined('MOODLE_INTERNAL') || die();
 
 /** Five short exercises. IDs and order are stable because progress refers to them. */
 final class steps {
-    public const KEYS = ['links', 'images', 'headings', 'video', 'colour'];
+    public const KEYS = ['communication', 'predictability', 'participation', 'hearing', 'voice'];
     public const ANSWERS = [2, 1, 0, 2, 1];
     public const PREFERENCE = 'block_learningstep_progress_v1';
 
