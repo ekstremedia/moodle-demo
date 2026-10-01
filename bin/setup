@@ -20,7 +20,7 @@ MAIL_ENCRYPTION=none
 MAIL_USERNAME=
 MAIL_PASSWORD=
 MAIL_FROM_ADDRESS=
-YR_USER_AGENT=MoodleWeather/1.0 (https://ekstremedia.no)
+YR_USER_AGENT="MoodleWeather/1.0 (https://ekstremedia.no)"
 EOF
     echo 'Created .env with local passwords.'
 fi

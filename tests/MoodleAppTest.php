@@ -4,6 +4,7 @@ declare(strict_types=1);
 use PHPUnit\Framework\TestCase;
 
 require_once __DIR__ . '/Support/MoodleBrowser.php';
+require_once __DIR__ . '/Support/SetupEnvironment.php';
 
 final class MoodleAppTest extends TestCase {
     private static int $courseId = 0;
@@ -65,11 +66,9 @@ final class MoodleAppTest extends TestCase {
     }
 
     public function testAdminCanOpenCourseSettings(): void {
-        $settings = parse_ini_file(__DIR__ . '/../.env');
-        self::assertIsArray($settings);
         $browser = new MoodleBrowser();
         try {
-            [, $loginUrl, $loginStatus] = $browser->login('admin', $settings['ADMIN_PASSWORD']);
+            [, $loginUrl, $loginStatus] = $browser->login('admin', SetupEnvironment::adminPassword());
             self::assertSame(200, $loginStatus);
             self::assertStringStartsWith($browser->baseUrl() . '/my/', $loginUrl);
             [$settingsPage, $url, $status] = $browser->get('/course/edit.php?id=' . self::$courseId);

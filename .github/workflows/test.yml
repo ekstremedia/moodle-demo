@@ -19,8 +19,8 @@ jobs:
           extensions: curl, dom, mbstring, xml
           coverage: none
           tools: phpunit:11.5
-      - name: Lint weather plugin
-        run: find plugins/blocks/weather docker/configure-weather.php tests/MoodleWeatherTest.php tests/fixtures/weather.php -name '*.php' -print0 | xargs -0 -n1 php -l
+      - name: Lint weather plugin and tests
+        run: find plugins/blocks/weather docker/configure-weather.php tests -name '*.php' -print0 | xargs -0 -n1 php -l
       - name: Install Moodle
         run: ./bin/setup
       - name: Check fresh database and services

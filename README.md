@@ -1,6 +1,6 @@
 # Moodle – grunnoppsett
 
-Moodle er en læringsplattform: **Lærere** lager kurs med fagstoff, oppgaver og quizer; **deltakere** kan lære og levere arbeid. Dette repoet setter opp Moodle LMS 5.2.3 uten forhåndsopprettede kurs, men med en innloggingsklar `demo`-bruker. Moodle-kjernen hentes ved bygging, mens `plugins/` inneholder egne tillegg. En liten værblokk på dashbordet viser været i Kristiansand fra MET Norways API.
+Moodle er en læringsplattform: **Lærere** lager kurs med fagstoff, oppgaver og quizer; **deltakere** kan lære og levere arbeid. Dette repoet setter opp Moodle LMS 5.2.3 uten forhåndsopprettede kurs, men med en innloggingsklar `demo`-bruker. Moodle-kjernen hentes ved bygging, mens `plugins/` inneholder egne tillegg. Værblokken på dashbordet viser vær, vind og de neste delene av dagen i Kristiansand.
 
 ## Kom i gang med Docker
 
@@ -22,7 +22,7 @@ docker compose down -v     # Slett database og filer; kjør deretter ./bin/setup
 
 Du kan kjøre `./bin/setup` flere ganger uten å miste eksisterende data. **Cron** kjører planlagte Moodle-oppgaver, som varsler og opprydding, hvert minutt.
 
-Værblokken mellomlagrer én felles prognose til API-et ber om ny henting. `YR_USER_AGENT` i `.env` identifiserer installasjonen overfor MET Norway; sett den til ditt eget nettsted eller en kontaktadresse på VPS. Blokken lenker til [hele varselet på Yr](https://www.yr.no/nb/v%C3%A6rvarsel/daglig-tabell/1-2376/Norge/Agder/Kristiansand/Kristiansand). Ved installasjon uten Docker kopierer du `plugins/blocks/weather` til Moodles `public/blocks/weather`, kjører oppgradering og legger blokken på dashbordet som administrator.
+Værblokken mellomlagrer én felles prognose fra MET Norway til API-et ber om ny henting. Symbolene er kopiert fra [Laravel Yr](https://github.com/ekstremedia/laravel-yr) med [MIT-lisens](plugins/blocks/weather/pix/symbols/LICENSE). `YR_USER_AGENT` i `.env` identifiserer installasjonen; sett den til ditt nettsted eller en kontaktadresse på VPS, og behold anførselstegnene. Blokken lenker til [hele varselet på Yr](https://www.yr.no/nb/v%C3%A6rvarsel/daglig-tabell/1-2376/Norge/Agder/Kristiansand/Kristiansand). Ved installasjon uten Docker kopierer du `plugins/blocks/weather` til Moodles `public/blocks/weather`, kjører oppgradering og legger blokken på dashbordet som administrator.
 
 Etter lokalt oppsett kan du kjøre `phpunit --configuration tests/phpunit.xml` med PHPUnit 11. Testene dekker innlogging, registrering, norsk språk, kurs og værblokken. Testbrukeren og testkurset slettes etterpå. GitHub Actions tester også database, cron og gjentatt oppsett ved push og pull request.
 
