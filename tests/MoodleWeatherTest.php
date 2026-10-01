@@ -24,7 +24,9 @@ final class MoodleWeatherTest extends TestCase {
             $document = new DOMDocument();
             @$document->loadHTML($login);
             $xpath = new DOMXPath($document);
-            self::assertCount(1, $xpath->query("//*[contains(concat(' ', normalize-space(@class), ' '), ' block-weather-layout ')]"));
+            $layouts = $xpath->query("//*[contains(concat(' ', normalize-space(@class), ' '), ' block-weather-layout ')]");
+            self::assertCount(1, $layouts);
+            $layout = $layouts->item(0);
             self::assertCount(1, $xpath->query("//*[contains(concat(' ', normalize-space(@class), ' '), ' block-weather-current ')]"));
             $outlooks = $xpath->query("//*[contains(concat(' ', normalize-space(@class), ' '), ' block-weather-outlook ')]");
             self::assertCount(1, $outlooks);
@@ -34,9 +36,11 @@ final class MoodleWeatherTest extends TestCase {
             self::assertCount($dayparts->length, $xpath->query(".//img[@width='28' and @height='28']", $outlook));
             $days = $xpath->query(".//*[contains(concat(' ', normalize-space(@class), ' '), ' block-weather-day ')]", $outlook);
             self::assertGreaterThanOrEqual(1, $days->length);
-            self::assertCount($days->length, $xpath->query(".//*[contains(concat(' ', normalize-space(@class), ' '), ' block-weather-range ')]", $outlook));
-            self::assertCount(1, $xpath->query(".//a[contains(@href, 'yr.no')]", $outlook));
-            self::assertStringContainsString('Vind opptil 8 m/s', $login);
+            self::assertCount(3 * $days->length, $xpath->query(".//*[contains(concat(' ', normalize-space(@class), ' '), ' block-weather-metric ')]", $outlook));
+            $footers = $xpath->query("./*[contains(concat(' ', normalize-space(@class), ' '), ' block-weather-footer ')]", $layout);
+            self::assertCount(1, $footers);
+            self::assertCount(1, $xpath->query(".//a[contains(@href, 'yr.no')]", $footers->item(0)));
+            self::assertStringContainsString('Maks vind', $login);
             self::assertStringContainsString('cloudy.svg', $login);
             self::assertStringContainsString('rain.svg', $login);
         } finally {

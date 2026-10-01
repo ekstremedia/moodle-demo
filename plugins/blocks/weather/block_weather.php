@@ -85,35 +85,39 @@ class block_weather extends block_base {
             foreach ($weather['periods'] as $period) {
                 $condition = $this->condition($period['symbol']);
                 $groups[$period['date']][] = html_writer::tag('div',
-                    html_writer::tag('span', get_string('part' . $period['part'], 'block_weather'),
-                        ['class' => 'block-weather-period-label'])
-                    . $this->icon($period['symbol'], $condition, 28),
+                    $this->icon($period['symbol'], $condition, 28)
+                    . html_writer::tag('span', get_string('part' . $period['part'], 'block_weather'),
+                        ['class' => 'block-weather-period-label']),
                     ['class' => 'block-weather-daypart']);
             }
             foreach ($groups as $date => $symbols) {
                 $day = $weather['days'][$date];
-                $details = [];
+                $metrics = $this->metric('temperaturelabel', round($day['min']) . '–' . round($day['max']) . '°');
                 if ($day['precipitation'] !== null) {
-                    $details[] = get_string('periodprecipitation', 'block_weather',
-                        self::number($day['precipitation']));
+                    $metrics .= $this->metric('precipitationlabel', self::number($day['precipitation']) . ' mm');
                 }
                 if ($day['wind'] !== null) {
-                    $details[] = get_string('periodwind', 'block_weather', self::number($day['wind']));
+                    $metrics .= $this->metric('windlabel', self::number($day['wind']) . ' m/s');
                 }
                 $outlook .= html_writer::tag('div',
                     html_writer::tag('strong', s($this->date_label($date)), ['class' => 'block-weather-date'])
                     . html_writer::tag('div', implode('', $symbols), ['class' => 'block-weather-symbols'])
-                    . html_writer::tag('div', s(round($day['min']) . '–' . round($day['max']) . '°'),
-                        ['class' => 'block-weather-range'])
-                    . html_writer::tag('div', implode(' · ', $details), ['class' => 'block-weather-period-details']),
+                    . html_writer::tag('div', $metrics, ['class' => 'block-weather-metrics']),
                     ['class' => 'block-weather-day']);
             }
         }
-        $outlook .= html_writer::tag('div', $this->render_footer(), ['class' => 'block-weather-footer']);
         return html_writer::tag('div',
             html_writer::tag('div', $currentcolumn, ['class' => 'block-weather-current'])
-            . html_writer::tag('div', $outlook, ['class' => 'block-weather-outlook']),
+            . html_writer::tag('div', $outlook, ['class' => 'block-weather-outlook'])
+            . html_writer::tag('div', $this->render_footer(), ['class' => 'block-weather-footer']),
             ['class' => 'block-weather-layout']);
+    }
+
+    private function metric(string $label, string $value): string {
+        return html_writer::tag('div',
+            html_writer::tag('strong', s($value), ['class' => 'block-weather-metric-value'])
+            . html_writer::tag('span', get_string($label, 'block_weather'), ['class' => 'block-weather-metric-label']),
+            ['class' => 'block-weather-metric']);
     }
 
     private function icon(?string $code, string $alt, int $size = 56): string {
