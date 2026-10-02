@@ -12,11 +12,27 @@ function fixture(action, username) {
         cwd: root, input: readFileSync(path.join(root, 'tests/fixtures/learningstep.php')), encoding: 'utf8',
     });
 }
-async function login(page, username) {
-    await page.goto('/login/index.php');
-    await page.locator('#username').fill(username);
-    await page.locator('#password').fill('Learning123!');
-    await page.locator('#loginbtn').click();
+async function login(page, username, useLoginForm = false) {
+    if (useLoginForm) {
+        await page.goto('/login/index.php');
+        await page.locator('#username').fill(username);
+        await page.locator('#password').fill('Learning123!');
+        await page.locator('#loginbtn').click();
+    } else {
+        // Authenticate through Moodle with this browser context's cookie jar. This keeps
+        // plugin tests independent of JavaScript initialisation on the core login form.
+        const form = await page.request.get('/login/index.php');
+        expect(form.ok(), 'Moodle login form must load').toBe(true);
+        const token = (await form.text()).match(/name="logintoken" value="([^"]+)"/);
+        expect(token, 'Moodle login form must contain its CSRF token').not.toBeNull();
+        const response = await page.request.post('/login/index.php', {
+            form: {username, password: 'Learning123!', logintoken: token[1]},
+        });
+        expect(response.ok(), 'Moodle must accept the login request').toBe(true);
+        expect(new URL(response.url()).pathname, 'Login must leave the login page').not.toBe('/login/index.php');
+        await page.goto('/my/');
+    }
+    await expect(page).toHaveURL(/\/my\/(?:[?#].*)?$/);
     await expect(page.locator('.learningstep')).toBeVisible();
 }
 let username;
@@ -30,7 +46,7 @@ test('keyboard flow works without JavaScript, including completion and reset', a
     const context = await browser.newContext({baseURL, javaScriptEnabled: false});
     const page = await context.newPage();
     try {
-        await login(page, username);
+        await login(page, username, true);
         const block = page.locator('.learningstep');
         for (let step = 0; step < 5; step++) {
             // Focus the question, then use only Tab, Space and Enter within the exercise.
@@ -64,6 +80,7 @@ test('question and feedback pass scoped accessibility checks and fit a narrow sc
     await page.setViewportSize({width: 320, height: 900});
     await login(page, username);
     await page.goto('/my/?lang=en');
+    await expect(page.locator('.block_learningstep')).toHaveAttribute('data-learningstep-ready', '1');
     await expect(page.locator('html')).toHaveAttribute('lang', 'en');
     const block = page.locator('.learningstep');
     await expect(block).toHaveAttribute('lang', 'nb');

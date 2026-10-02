@@ -14,6 +14,12 @@ if ($action === 'create') {
         'firstname' => 'Læring', 'lastname' => 'Test', 'email' => $username . '@example.invalid',
         'confirmed' => 1, 'mnethostid' => $CFG->mnet_localhost_id, 'lang' => 'nb',
     ]);
+    // Test the exercise without Moodle's first-visit tours covering its controls.
+    foreach (\tool_usertours\helper::get_tours() as $tour) {
+        // Moodle requires completion to be strictly later than the tour's last update.
+        $completed = max(time(), (int) $tour->get_config('majorupdatetime', 0) + 1);
+        set_user_preference(\tool_usertours\tour::TOUR_LAST_COMPLETED_BY_USER . $tour->get_id(), $completed, $id);
+    }
     echo $id;
 } else {
     $user = $DB->get_record('user', ['username' => $username], '*', MUST_EXIST);
