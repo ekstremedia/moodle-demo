@@ -51,7 +51,7 @@ Kjør `./bin/setup` etter at pluginen er hentet; dette bygger bildet, oppgradere
 
 Bakgrunn for eksemplene: [ASK](https://www.statped.no/tiltak-og-tilrettelegging/alternativ-og-supplerende-kommunikasjon/), [syn og felles lek](https://www.statped.no/tiltak-og-tilrettelegging/synsnedsettelser/), [støy og hørsel](https://www.statped.no/tiltak-og-tilrettelegging/sansetap/nedsatt-horsel/sann-reduserer-du-stoy-i-klasserommet/) og [planlegging av skolestart](https://www.statped.no/horselshemming/barnehage/med-nedsett-hoyrsel/planlegging-og-samarbeid/).
 
-Blokken bruker vanlige skjemaer, synlige fokusmarkeringer og tekstlige tilbakemeldinger, og fungerer uten JavaScript. CI kjører også tastaturtester i Chromium og automatiske tilgjengelighetssjekker med axe. Disse erstatter ikke manuell testing med skjermleser. Kjør nettlesertestene mot en lokal **testinstallasjon** (de oppretter og sletter testbrukere):
+Blokken bruker vanlige skjemaer, synlige fokusmarkeringer og tekstlige tilbakemeldinger, og fungerer uten JavaScript. Med JavaScript oppdateres bare selve læringssteget, uten at dashbordet lastes på nytt eller ruller til et anker. CI kjører også tastaturtester i Chromium og automatiske tilgjengelighetssjekker med axe. Disse erstatter ikke manuell testing med skjermleser. Kjør nettlesertestene mot en lokal **testinstallasjon** (de oppretter og sletter testbrukere):
 
 ```sh
 npm install --no-save --package-lock=false @playwright/test@1.58.2 @axe-core/playwright@4.11.1

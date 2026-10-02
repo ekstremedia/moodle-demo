@@ -47,7 +47,13 @@ final class MoodleLearningStepTest extends TestCase {
     public function testGuardsRejectGuestsGetInvalidAnswersAndMissingCsrfToken(): void {
         [, $url] = $this->browser->get('/blocks/learningstep/action.php');
         self::assertStringContainsString('/login/index.php', $url);
-        [$html] = $this->browser->login($this->username, 'Learning123!');
+        // Moodle remembers the protected URL and returns there after login.
+        // Its GET response is correctly empty (405), not a dashboard form.
+        [, $returnurl, $returnstatus] = $this->browser->login($this->username, 'Learning123!');
+        self::assertStringContainsString('/blocks/learningstep/action.php', $returnurl);
+        self::assertSame(405, $returnstatus);
+        [$html, , $dashboardstatus] = $this->browser->get('/my/');
+        self::assertSame(200, $dashboardstatus);
         $form = $this->form($html);
         [, , $status] = $this->browser->get('/blocks/learningstep/action.php?action=reset');
         self::assertSame(405, $status);
@@ -89,6 +95,7 @@ final class MoodleLearningStepTest extends TestCase {
 
     /** Extract only our block's fields, ignoring Moodle's other dashboard forms. */
     private function form(string $html): array {
+        self::assertNotSame('', $html, 'Expected a dashboard page containing the learning step form');
         $document = new DOMDocument();
         @$document->loadHTML($html);
         $xpath = new DOMXPath($document);

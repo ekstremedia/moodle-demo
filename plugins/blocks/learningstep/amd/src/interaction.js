@@ -1,0 +1,68 @@
+// This file is part of Moodle. Licensed under the GNU GPL v3 or later.
+define([], function() {
+    'use strict';
+
+    /** Enhance native forms without navigating or moving the dashboard. */
+    function init() {
+        document.querySelectorAll('.block_learningstep').forEach(function(container) {
+            if (container.dataset.learningstepReady) {
+                return;
+            }
+            container.dataset.learningstepReady = '1';
+            container.addEventListener('submit', async function(event) {
+                const form = event.target;
+                const current = form.closest('.learningstep');
+                if (!current) {
+                    return;
+                }
+                event.preventDefault();
+                if (container.dataset.learningstepBusy) {
+                    return;
+                }
+                const data = new FormData(form);
+                if (event.submitter && event.submitter.name) {
+                    data.append(event.submitter.name, event.submitter.value);
+                }
+                const controls = Array.from(current.querySelectorAll('button, input'));
+                const disabled = controls.map(function(control) { return control.disabled; });
+                const height = Math.ceil(current.getBoundingClientRect().height);
+                const error = current.querySelector('.learningstep-error');
+                error.hidden = true;
+                container.dataset.learningstepBusy = '1';
+                current.setAttribute('aria-busy', 'true');
+                controls.forEach(function(control) { control.disabled = true; });
+                const controller = new AbortController();
+                const timeout = setTimeout(function() { controller.abort(); }, 15000);
+                try {
+                    // The existing POST endpoint validates the session and returns the updated dashboard.
+                    // Extract only our block; scripts and other dashboard content are never inserted.
+                    const response = await fetch(form.getAttribute('action'), {
+                        method: 'POST', body: data, credentials: 'same-origin', signal: controller.signal
+                    });
+                    if (!response.ok) {
+                        throw new Error('Submission failed');
+                    }
+                    const document = new DOMParser().parseFromString(await response.text(), 'text/html');
+                    const replacement = document.querySelector('.block_learningstep .learningstep');
+                    if (!replacement) {
+                        throw new Error('Learning step missing from response');
+                    }
+                    // A shorter explanation must not pull the rest of the page upwards.
+                    replacement.style.minHeight = height + 'px';
+                    current.replaceWith(replacement);
+                    replacement.querySelector('#learningstep').focus({preventScroll: true});
+                } catch (failure) {
+                    controls.forEach(function(control, index) { control.disabled = disabled[index]; });
+                    current.removeAttribute('aria-busy');
+                    error.hidden = false;
+                    error.focus({preventScroll: true});
+                } finally {
+                    clearTimeout(timeout);
+                    delete container.dataset.learningstepBusy;
+                }
+            });
+        });
+    }
+
+    return {init: init};
+});

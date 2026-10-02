@@ -37,12 +37,18 @@ class block_learningstep extends block_base {
             'sesskey' => sesskey(),
             'step' => $step,
             'done' => $done,
+            'laststep' => $step === count(\block_learningstep\steps::KEYS) - 1,
             'answered' => $answered,
             'questionvisible' => !$done && !$answered,
             'progress' => get_string('progress', 'block_learningstep', (object) [
                 'done' => $step + (int) $answered, 'total' => count(\block_learningstep\steps::KEYS),
             ]),
         ];
+        if ($done) {
+            foreach (\block_learningstep\steps::KEYS as $key) {
+                $data['topics'][] = ['label' => get_string('topic' . $key, 'block_learningstep')];
+            }
+        }
         if (!$done) {
             $key = \block_learningstep\steps::KEYS[$step];
             $data['question'] = get_string($key . '_question', 'block_learningstep');
@@ -58,6 +64,7 @@ class block_learningstep extends block_base {
                 }
             }
         }
+        $this->page->requires->js_call_amd('block_learningstep/interaction', 'init');
         $this->content->text = $OUTPUT->render_from_template('block_learningstep/content', $data);
         return $this->content;
     }

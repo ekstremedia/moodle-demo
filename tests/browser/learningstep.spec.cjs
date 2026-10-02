@@ -39,18 +39,20 @@ test('keyboard flow works without JavaScript, including completion and reset', a
             await expect(block.getByRole('radio').first()).toBeFocused();
             await page.keyboard.press('Space');
             await page.keyboard.press('Tab');
-            await expect(block.getByRole('button', {name: 'Se forklaring'})).toBeFocused();
+            await expect(block.getByRole('button', {name: 'Svar og se forklaring'})).toBeFocused();
             await Promise.all([page.waitForNavigation({waitUntil: 'domcontentloaded'}), page.keyboard.press('Enter')]);
             await expect(block.locator('.learningstep-feedback')).toBeVisible();
             await expect(page.locator('#learningstep')).toBeFocused();
             await page.keyboard.press('Tab');
-            await expect(block.getByRole('button', {name: 'Neste steg'})).toBeFocused();
+            await expect(block.getByRole('button', {name: step === 4 ? 'Fullfør øvelsen' : 'Neste steg'})).toBeFocused();
             await Promise.all([page.waitForNavigation({waitUntil: 'domcontentloaded'}), page.keyboard.press('Enter')]);
             await expect(block.getByText(`${step + 1} av 5 steg gjennomgått`)).toBeVisible();
         }
-        await expect(block.getByText('Fem små steg – ta dem med inn i hverdagen.')).toBeVisible();
+        await expect(block.getByText('Øvelsen er fullført')).toBeVisible();
         await page.keyboard.press('Tab');
-        await expect(block.getByRole('button', {name: 'Nullstill mine steg'})).toBeFocused();
+        await expect(block.getByRole('link', {name: 'Utforsk ressurser hos Statped'})).toBeFocused();
+        await page.keyboard.press('Tab');
+        await expect(block.getByRole('button', {name: 'Ta oppgavene på nytt'})).toBeFocused();
         await Promise.all([page.waitForNavigation({waitUntil: 'domcontentloaded'}), page.keyboard.press('Enter')]);
         await expect(block.getByText('0 av 5 steg gjennomgått')).toBeVisible();
     } finally {
@@ -61,11 +63,21 @@ test('keyboard flow works without JavaScript, including completion and reset', a
 test('question and feedback pass scoped accessibility checks and fit a narrow screen', async ({page}) => {
     await page.setViewportSize({width: 320, height: 900});
     await login(page, username);
+    await page.goto('/my/?lang=en');
+    await expect(page.locator('html')).toHaveAttribute('lang', 'en');
     const block = page.locator('.learningstep');
+    await expect(block).toHaveAttribute('lang', 'nb');
     for (const answered of [false, true]) {
         if (answered) {
-            await block.getByRole('radio').last().check();
-            await block.getByRole('button', {name: 'Se forklaring'}).click();
+            const option = block.getByRole('radio').last();
+            const submit = block.getByRole('button', {name: 'Svar og se forklaring'});
+            await expect(submit).toBeVisible();
+            await option.check();
+            await expect(option).toBeChecked();
+            await expect(submit).toBeVisible();
+            await expect(submit).toBeEnabled();
+            await expect(block.locator('.learningstep-feedback')).toHaveCount(0);
+            await block.getByRole('button', {name: 'Svar og se forklaring'}).click();
             await expect(block.locator('.learningstep-feedback')).toBeVisible();
         }
         const results = await new AxeBuilder({page}).include('.block_learningstep')
@@ -73,4 +85,51 @@ test('question and feedback pass scoped accessibility checks and fit a narrow sc
         expect(results.violations).toEqual([]);
         expect(await block.evaluate(el => el.scrollWidth <= el.clientWidth)).toBe(true);
     }
+});
+
+
+test('answers, completion and restart update in place without moving the page', async ({page}) => {
+    await login(page, username);
+    await expect(page.locator('.block_learningstep')).toHaveAttribute('data-learningstep-ready', '1');
+    const block = page.locator('.learningstep');
+    const initialUrl = page.url();
+    await page.evaluate(() => { window.learningstepDocumentMarker = 'same-document'; });
+    for (let step = 0; step < 5; step++) {
+        await block.getByRole('radio').last().check();
+        const submit = block.getByRole('button', {name: 'Svar og se forklaring'});
+        await submit.scrollIntoViewIfNeeded();
+        const scroll = await page.evaluate(() => window.scrollY);
+        await submit.click();
+        await expect(block.locator('.learningstep-feedback')).toBeVisible();
+        await expect(page.locator('#learningstep')).toBeFocused();
+        expect(await page.evaluate(() => window.scrollY)).toBeCloseTo(scroll, 0);
+        expect(await page.evaluate(() => window.learningstepDocumentMarker)).toBe('same-document');
+        expect(page.url()).toBe(initialUrl);
+        await block.getByRole('button', {name: step === 4 ? 'Fullfør øvelsen' : 'Neste steg'}).click();
+        if (step < 4) {
+            await expect(block.getByRole('radio')).toHaveCount(3);
+        }
+    }
+    await expect(block.getByRole('heading', {name: 'Øvelsen er fullført'})).toBeVisible();
+    await expect(block.locator('.learningstep-topics li')).toHaveCount(5);
+    await block.getByRole('button', {name: 'Ta oppgavene på nytt'}).click();
+    await expect(block.getByText('0 av 5 steg gjennomgått')).toBeVisible();
+    expect(await page.evaluate(() => window.learningstepDocumentMarker)).toBe('same-document');
+});
+
+
+test('failed submission keeps the chosen answer and allows retry', async ({page}) => {
+    await login(page, username);
+    await expect(page.locator('.block_learningstep')).toHaveAttribute('data-learningstep-ready', '1');
+    const block = page.locator('.learningstep');
+    await block.getByRole('radio').last().check();
+    await page.route('**/blocks/learningstep/action.php', route => route.abort());
+    await block.getByRole('button', {name: 'Svar og se forklaring'}).click();
+    await expect(block.getByRole('alert')).toBeVisible();
+    await expect(block.getByRole('radio').last()).toBeChecked();
+    await expect(block.getByRole('button', {name: 'Svar og se forklaring'})).toBeEnabled();
+    await page.unroute('**/blocks/learningstep/action.php');
+    await block.getByRole('button', {name: 'Svar og se forklaring'}).click();
+    await expect(block.locator('.learningstep-feedback')).toBeVisible();
+    await expect(block.getByRole('alert')).toBeHidden();
 });

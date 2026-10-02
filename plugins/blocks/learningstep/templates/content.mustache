@@ -6,8 +6,9 @@
      "progress":"0 av 5 steg gjennomgått","questionvisible":true,"question":"Hvordan kan barnet delta i leken?",
      "options":[{"value":0,"label":"Gi barnet tid til å svare"}]}
 }}
-<div class="learningstep">
-    <p>{{#str}}intro, block_learningstep{{/str}}</p>
+<div class="learningstep" lang="nb">
+    {{^done}}<p>{{#str}}intro, block_learningstep{{/str}}</p>{{/done}}
+    <p class="learningstep-error" role="alert" tabindex="-1" hidden>{{#str}}submiterror, block_learningstep{{/str}}</p>
     <p class="learningstep-progress">{{progress}}</p>
     {{#questionvisible}}
     <form method="post" action="{{actionurl}}">
@@ -23,7 +24,10 @@
             </label>
             {{/options}}
         </fieldset>
-        <button class="btn btn-primary mt-3" type="submit">{{#str}}submit, block_learningstep{{/str}}</button>
+        <div class="learningstep-actions">
+            <p>{{#str}}answerhint, block_learningstep{{/str}}</p>
+            <button class="btn btn-primary" type="submit">{{#str}}submit, block_learningstep{{/str}}</button>
+        </div>
     </form>
     {{/questionvisible}}
     {{#answered}}
@@ -35,19 +39,26 @@
     <form method="post" action="{{actionurl}}">
         <input type="hidden" name="sesskey" value="{{sesskey}}">
         <input type="hidden" name="step" value="{{step}}">
-        <button class="btn btn-primary" type="submit" name="action" value="next">{{#str}}next, block_learningstep{{/str}}</button>
+        <button class="btn btn-primary" type="submit" name="action" value="next">{{#laststep}}{{#str}}finish, block_learningstep{{/str}}{{/laststep}}{{^laststep}}{{#str}}next, block_learningstep{{/str}}{{/laststep}}</button>
     </form>
     {{/answered}}
     {{#done}}
-    <h3 id="learningstep" class="h5" tabindex="-1">{{#str}}complete, block_learningstep{{/str}}</h3>
-    <p>{{#str}}completebody, block_learningstep{{/str}}</p>
+    <section class="learningstep-complete" aria-labelledby="learningstep">
+        <h3 id="learningstep" class="h5" tabindex="-1">{{#str}}complete, block_learningstep{{/str}}</h3>
+        <p>{{#str}}completebody, block_learningstep{{/str}}</p>
+        <h4 class="h6">{{#str}}reviewed, block_learningstep{{/str}}</h4>
+        <ul class="learningstep-topics">
+            {{#topics}}<li>{{label}}</li>{{/topics}}
+        </ul>
+        <a href="https://www.statped.no/tiltak-og-tilrettelegging/">{{#str}}resources, block_learningstep{{/str}}</a>
+    </section>
     {{/done}}
     <footer class="learningstep-footer">
         <p>{{#str}}privacyhint, block_learningstep{{/str}}</p>
         <form method="post" action="{{actionurl}}">
             <input type="hidden" name="sesskey" value="{{sesskey}}">
             <input type="hidden" name="step" value="{{step}}">
-            <button class="btn btn-outline-secondary btn-sm" type="submit" name="action" value="reset">{{#str}}reset, block_learningstep{{/str}}</button>
+            <button class="btn btn-outline-secondary btn-sm" type="submit" name="action" value="reset">{{#done}}{{#str}}restart, block_learningstep{{/str}}{{/done}}{{^done}}{{#str}}reset, block_learningstep{{/str}}{{/done}}</button>
         </form>
         <small>{{#str}}demonote, block_learningstep{{/str}}</small>
     </footer>
