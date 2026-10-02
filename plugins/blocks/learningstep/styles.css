@@ -1,0 +1,67 @@
+.block_learningstep .learningstep {
+    max-width: 48rem;
+    overflow-wrap: anywhere;
+}
+.block_learningstep .learningstep-progress {
+    font-weight: 600;
+}
+.block_learningstep legend {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: .75rem;
+}
+.block_learningstep .learningstep-option {
+    display: flex;
+    align-items: baseline;
+    gap: .75rem;
+    padding: .65rem .75rem;
+    margin-bottom: .5rem;
+    border: 1px solid #767676;
+    border-radius: .4rem;
+    cursor: pointer;
+}
+.block_learningstep .learningstep-option input {
+    flex-shrink: 0;
+}
+/* Keep native keyboard focus as a fallback in browsers without :has(). */
+@supports selector(label:has(input:focus-visible)) {
+    .block_learningstep .learningstep-option input:focus {
+        outline: none;
+        box-shadow: none;
+    }
+    .block_learningstep .learningstep-option:has(input:focus-visible) {
+        outline: 2px solid currentColor;
+        outline-offset: 3px;
+    }
+}
+.block_learningstep .learningstep-actions {
+    margin-top: 1rem;
+}
+.block_learningstep .learningstep-actions p {
+    margin-bottom: .5rem;
+}
+.block_learningstep .learningstep-feedback {
+    border-inline-start: .25rem solid currentColor;
+    padding-inline-start: 1rem;
+}
+.block_learningstep .learningstep-footer {
+    border-top: 1px solid #767676;
+    margin-top: 1.25rem;
+    padding-top: 1rem;
+}
+.block_learningstep .learningstep-footer small {
+    display: block;
+    margin-top: .75rem;
+}
+
+.block_learningstep .learningstep-complete {
+    border-inline-start: .25rem solid currentColor;
+    padding-inline-start: 1rem;
+}
+.block_learningstep .learningstep-topics {
+    padding-inline-start: 1.25rem;
+    margin-block: .75rem 1rem;
+}
+.block_learningstep .learningstep-topics li + li {
+    margin-top: .4rem;
+}

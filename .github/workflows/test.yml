@@ -19,8 +19,8 @@ jobs:
           extensions: curl, dom, mbstring, xml
           coverage: none
           tools: phpunit:11.5
-      - name: Lint weather plugin and tests
-        run: find plugins/blocks/weather docker/configure-weather.php tests -name '*.php' -print0 | xargs -0 -n1 php -l
+      - name: Lint plugins and tests
+        run: find plugins/blocks docker tests -name '*.php' -print0 | xargs -0 -n1 php -l
       - name: Install Moodle
         run: ./bin/setup
       - name: Check fresh database and services
@@ -32,8 +32,18 @@ jobs:
           test "$(docker compose exec -T db psql -U moodle -d moodle -Atqc "SELECT value FROM mdl_config WHERE name='registerauth'")" = email
           test "$(docker compose exec -T db psql -U moodle -d moodle -Atqc "SELECT value FROM mdl_config WHERE name='smtphosts'")" = mailpit:1025
           test "$(docker compose exec -T db psql -U moodle -d moodle -Atqc "SELECT count(*) FROM mdl_block_instances WHERE blockname='weather' AND pagetypepattern='my-index'")" = 1
+          test "$(docker compose exec -T db psql -U moodle -d moodle -Atqc "SELECT count(*) FROM mdl_block_instances WHERE blockname='learningstep' AND pagetypepattern='my-index'")" = 1
       - name: Run PHPUnit full-stack tests
         run: phpunit --configuration tests/phpunit.xml
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install browser test tools
+        run: |
+          npm install --no-save --package-lock=false @playwright/test@1.58.2 @axe-core/playwright@4.11.1
+          npx playwright install --with-deps chromium
+      - name: Test keyboard flow and accessibility
+        run: npx playwright test --config tests/browser/playwright.config.cjs
       - name: Verify cron and fixture cleanup
         run: |
           docker compose exec -T -u www-data web php admin/cli/cron.php --keep-alive=0
@@ -43,6 +53,14 @@ jobs:
           ./bin/setup
           test "$(docker compose exec -T db psql -U moodle -d moodle -Atqc "SELECT count(*) FROM mdl_user WHERE username='demo'")" = 1
           test "$(docker compose exec -T db psql -U moodle -d moodle -Atqc "SELECT count(*) FROM mdl_block_instances WHERE blockname='weather' AND pagetypepattern='my-index'")" = 1
+          test "$(docker compose exec -T db psql -U moodle -d moodle -Atqc "SELECT count(*) FROM mdl_block_instances WHERE blockname='learningstep' AND pagetypepattern='my-index'")" = 1
+      - name: Upload browser failure traces
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-test-results
+          path: test-results/
+          if-no-files-found: ignore
       - name: Show container logs on failure
         if: failure()
         run: docker compose logs --tail=100 web cron db mailpit

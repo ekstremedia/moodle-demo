@@ -24,7 +24,7 @@ Du kan kjøre `./bin/setup` flere ganger uten å miste eksisterende data. **Cron
 
 Værblokken mellomlagrer én felles prognose fra MET Norway til API-et ber om ny henting. Symbolene er kopiert fra [Laravel Yr](https://github.com/ekstremedia/laravel-yr) med [MIT-lisens](plugins/blocks/weather/pix/symbols/LICENSE). `YR_USER_AGENT` i `.env` identifiserer installasjonen; sett den til ditt nettsted eller en kontaktadresse på VPS, og behold anførselstegnene. Blokken lenker til [hele varselet på Yr](https://www.yr.no/nb/v%C3%A6rvarsel/daglig-tabell/1-2376/Norge/Agder/Kristiansand/Kristiansand). Ved installasjon uten Docker kopierer du `plugins/blocks/weather` til Moodles `public/blocks/weather`, kjører oppgradering og legger blokken på dashbordet som administrator.
 
-Etter lokalt oppsett kan du kjøre `phpunit --configuration tests/phpunit.xml` med PHPUnit 11. Testene dekker innlogging, registrering, norsk språk, kurs og værblokken. Testbrukeren og testkurset slettes etterpå. GitHub Actions tester også database, cron og gjentatt oppsett ved push og pull request.
+Etter lokalt oppsett kan du kjøre `phpunit --configuration tests/phpunit.xml` med PHPUnit 11. Testene dekker innlogging, registrering, norsk språk, kurs, værblokken og læringssteg. Testbrukeren og testkurset slettes etterpå. GitHub Actions tester også database, cron og gjentatt oppsett ved push og pull request.
 
 Har du allerede data fra et tidligere oppsett, beholdes de når du kjører `./bin/setup` igjen. Bruk reset-kommandoen over hvis du vil starte helt på nytt; den sletter alle eksisterende data.
 
@@ -42,6 +42,22 @@ MAIL_FROM_ADDRESS=noreply@example.com
 ```
 
 `MAIL_HOST=mailpit` er bare for lokal testing. Etter oppsett kan administrator sende et prøvebrev fra **Nettstedsadministrasjon → Server → E-post → Utgående e-post**. Nye kontoer får ingen kurs automatisk; en lærer eller administrator må melde dem på, eller aktivere selvpåmelding i et kurs.
+
+## Et lite læringssteg
+
+Dashbordet har fem korte øvelser på bokmål for voksne som tilrettelegger i barnehage og skole: kommunikasjon (ASK), forutsigbarhet, felles lek, hørsel og barnets medvirkning. Velg et svar, les forklaringen og gå videre når det passer. Fremdriften huskes mellom innlogginger og kan nullstilles. Dette er egne eksempeloppgaver inspirert av [Statpeds ressurser om tilrettelegging](https://www.statped.no/tiltak-og-tilrettelegging/), ikke faglig kvalitetssikret kursinnhold fra Statped. Tiltak må tilpasses det enkelte barnet.
+
+Kjør `./bin/setup` etter at pluginen er hentet; dette bygger bildet, oppgraderer Moodle og legger blokken på eksisterende og nye dashbord. Uten Docker kopierer du `plugins/blocks/learningstep` til `public/blocks/learningstep`, kjører Moodle-oppgradering og legger blokken på standarddashbordet. Oppgavene følger pluginen og redigeres foreløpig i språkfilene. Oppgraderingen til 0.1.1 nullstiller fremdrift fra de tidligere oppgavene om webtilgjengelighet.
+
+Bakgrunn for eksemplene: [ASK](https://www.statped.no/tiltak-og-tilrettelegging/alternativ-og-supplerende-kommunikasjon/), [syn og felles lek](https://www.statped.no/tiltak-og-tilrettelegging/synsnedsettelser/), [støy og hørsel](https://www.statped.no/tiltak-og-tilrettelegging/sansetap/nedsatt-horsel/sann-reduserer-du-stoy-i-klasserommet/) og [planlegging av skolestart](https://www.statped.no/horselshemming/barnehage/med-nedsett-hoyrsel/planlegging-og-samarbeid/).
+
+Blokken bruker vanlige skjemaer, synlige fokusmarkeringer og tekstlige tilbakemeldinger, og fungerer uten JavaScript. Med JavaScript oppdateres bare selve læringssteget, uten at dashbordet lastes på nytt eller ruller til et anker. CI kjører også tastaturtester i Chromium og automatiske tilgjengelighetssjekker med axe. Disse erstatter ikke manuell testing med skjermleser. Kjør nettlesertestene mot en lokal **testinstallasjon** (de oppretter og sletter testbrukere):
+
+```sh
+npm install --no-save --package-lock=false @playwright/test@1.58.2 @axe-core/playwright@4.11.1
+npx playwright install --with-deps chromium
+npx playwright test --config tests/browser/playwright.config.cjs
+```
 
 ## Vanlig installasjon uten Docker
 
